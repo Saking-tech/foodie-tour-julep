@@ -97,8 +97,4 @@ main:
   # Format final output
 - evaluate:
     complete_tours: |-
-      $ '
-
-      \\n---------------\\n
-
-      '.join(activity for activity in _)
+      $ '\\n---------------\\n'.join(activity for activity in _)
