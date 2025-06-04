@@ -13,7 +13,7 @@ A smart culinary tour generator that creates personalized food experiences based
 
 ## Prerequisites
 
-- Python 3.x
+- Python 3.8+
 - Julep AI API key
 - OpenWeatherMap API key
 - Brave Search API key
@@ -76,7 +76,7 @@ The workflow generates detailed food tours for each city, including:
 
 1. Collects weather data for each city
 2. Researches local dishes and traditional foods
-3. Finds top-rated restaurants
+3. Finds top-rated restaurants with those local dishes
 4. Combines all data sources
 5. Generates personalized food tours
 6. Formats and presents the final results
