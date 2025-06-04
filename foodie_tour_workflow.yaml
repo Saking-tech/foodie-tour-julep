@@ -1,0 +1,100 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/julep-ai/julep/refs/heads/dev/schemas/create_task_request.json
+name: Foodie Tour Generator
+description: Creates weather-informed culinary tours with local dishes and restaurant recommendations
+
+input_schema:
+  type: object
+  properties:
+    cities:
+      type: array
+      items:
+        type: string
+      description: List of cities for the foodie tour
+    preferences:
+      type: object
+      properties:
+        dietary_restrictions:
+          type: array
+          items:
+            type: string
+        budget_preference:
+          type: string
+
+tools:
+- name: wikipedia
+  type: integration
+  integration:
+    provider: wikipedia
+- name: weather
+  type: integration
+  integration:
+    provider: weather
+    setup:
+      openweathermap_api_key: ${OPENWEATHERMAP_API_KEY}
+- name: internet_search
+  type: integration
+  integration:
+    provider: brave
+    setup:
+      brave_api_key: ${BRAVE_API_KEY}
+
+main:
+# Parallel weather data collection
+- over: $ steps[0].input.cities
+  map:
+    tool: weather
+    arguments:
+      location: $ _
+# Research local dishes for each city
+- over: $ steps[0].input.cities
+  map:
+    tool: internet_search
+    arguments:
+      query: $ 'iconic local dishes or traditional food of' + _
+
+# Find restaurants for identified dishes
+- over: $ steps[0].input.cities
+  parallelism: 3
+  map:
+    tool: internet_search
+    arguments:
+      query: $ 'top rated restaurants in ' + _ + ' with {_[2]}'
+
+# Combine all data sources
+- evaluate:
+    city_data: |-
+      $ list(
+        zip(
+          steps[0].input.cities,
+          [w['result'] for w in steps[0].output],
+          [d['result'] for d in steps[0].output],
+          [r['result'] for r in steps[0].output]
+        )
+      )
+# Generate personalized foodie tours
+- over: $ _['city_data']
+  parallelism: 3
+  map:
+    prompt:
+    - role: system
+      content: >-
+        $ f''' You are {agent.name}. Your task is to create a weather-informed culinary tours with local dishes and restaurant recommendations for a given city. The user will give you the following information for each city:
+
+        - The city - The current weather condition - The top tourist attractions '''
+    - role: user
+      content: |
+        $ f'''Create a delightful one-day foodie tour for {_[0]}.
+        Weather conditions: {_[1]}
+        Local dishes: {_[2]}
+        Restaurant options: {_[3]}
+        Generate breakfast, lunch, and dinner recommendations with:
+        - Weather-appropriate dining choices (indoor/outdoor)
+        - 3 iconic local dishes strategically placed throughout the day
+        - Top-rated restaurant selections
+        - Engaging narratives for each meal experience
+        - Optimal timing and logistics'''
+    unwrap: true
+  # Format final output
+- evaluate:
+    complete_tours: |-
+      $ '\\n---------------\\n'.join(activity for activity in _)
