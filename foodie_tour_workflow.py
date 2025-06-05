@@ -21,7 +21,7 @@ with open('foodie_tour_workflow.yaml', 'r', encoding='utf-8') as file:
     task_definition = yaml.safe_load(file)
 
 task = client.tasks.create(
-    agent_id="06840bb5-ac5e-7dfe-8000-e8249ef2e2df",
+    agent_id=agent.id,
     **task_definition
 )
 
