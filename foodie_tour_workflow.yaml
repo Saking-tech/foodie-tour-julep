@@ -30,13 +30,13 @@ tools:
   integration:
     provider: weather
     setup:
-      openweathermap_api_key: ${OPENWEATHERMAP_API_KEY}
+      openweathermap_api_key: $OPENWEATHERMAP_API_KEY
 - name: internet_search
   type: integration
   integration:
     provider: brave
     setup:
-      brave_api_key: ${BRAVE_API_KEY}
+      brave_api_key: $BRAVE_API_KEY
 
 main:
 # Parallel weather data collection

@@ -6,6 +6,9 @@ import os
 # Initialize Julep client
 client = Client(api_key=os.getenv("JULEP_API_KEY"))
 
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY")
+BRAVE_API_KEY = os.getenv("BRAVE_API_KEY")
+
 # Create the agent
 agent = client.agents.create(
     name="Foodie Tour Expert",
@@ -18,7 +21,7 @@ with open('foodie_tour_workflow.yaml', 'r', encoding='utf-8') as file:
     task_definition = yaml.safe_load(file)
 
 task = client.tasks.create(
-    agent_id=agent.id,
+    agent_id="06840bb5-ac5e-7dfe-8000-e8249ef2e2df",
     **task_definition
 )
 
@@ -26,7 +29,7 @@ task = client.tasks.create(
 execution = client.executions.create(
     task_id=task.id,
     input={
-        "cities": ["Tokyo", "Paris", "Barcelona", "Bangkok", "New York"],
+        "cities": ["Patna", "Mumbai", "Delhi", "Kolkata", "Chennai"],
         "preferences": {
             "dietary_restrictions": ["vegetarian"],
             "budget_preference": "mid-range"
